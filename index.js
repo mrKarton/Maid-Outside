@@ -22,12 +22,20 @@ app.get('/hentai', (req, res)=>{
         var root = parse(body);
         var array = new Array();
         var title = "hentai";
+        var regex = RegExp('".*?"', 'g')
         root.querySelector('.gallery-wrapper').childNodes[3].childNodes.forEach(element => {
             // console.log(element.rawTagName)
 
             if(element.rawTagName == 'li')
-            {
-                array.push("https://hentai-monster.art" + element.childNodes[0].childNodes[0].toString().split(' ')[1].split('"')[1]);
+            {   
+                var reg = regex.exec(element.childNodes[0].toString());
+                if(reg != null)
+                {
+                    if(reg[0].startsWith('"/'))
+                    {
+                        array.push("https://hentai-monster.art" + reg[0].split('"')[1]);
+                    }
+                }
                 title = element.childNodes[0].childNodes[0].toString().replace(/".*?"/).split('"')[1];
             }
         });
@@ -36,7 +44,8 @@ app.get('/hentai', (req, res)=>{
         res.send({
             title:title,
             result:array,
-            page:page
+            page:page,
+            size:array.length
         })
     })
 })
